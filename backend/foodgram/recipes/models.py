@@ -46,13 +46,13 @@ class Ingredient (models.Model):
         verbose_name='Unit of measurement',
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta():
         ordering = ['-name']
         verbose_name = 'Ingredient'
         verbose_name_plural = 'Ingredients'
+
+    def __str__(self):
+        return self.name[:settings.STRING_LEN]  
 
 
 class Recipe(models.Model):
