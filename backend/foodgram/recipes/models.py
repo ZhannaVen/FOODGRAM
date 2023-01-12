@@ -139,8 +139,25 @@ class RecipeIngredients (models.Model):
         verbose_name = 'Quantity of each ingredient'
 
 
+class FavoriteRecipes (models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorites',
+        verbose_name= 'Favorite Recipes of the user'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name='favorites',
+        verbose_name='User')
 
-
+    class Meta():
+        ordering = ['-id']
+        verbose_name = 'Favorite recipe'
+        verbose_name_plural = 'Favorite recipes'
+    
 
 
 
