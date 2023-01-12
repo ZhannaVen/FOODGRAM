@@ -187,3 +187,29 @@ class ShoppingList (models.Model):
         verbose_name_plural = 'Ingredients to buy'
 
 
+class Follow(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="follower",
+        verbose_name='Follower'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="following",
+        verbose_name='Subscribe to the author')
+
+    class Meta:
+        ordering = ['-id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_subscriptions')]
+        verbose_name = 'Subscription'
+        verbose_name_plural = 'Subscriptions'
+
+
+
+
+
