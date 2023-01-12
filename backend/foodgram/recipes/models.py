@@ -10,27 +10,48 @@ User = get_user_model()
 
 class Tag(models.Model):
     name = models.CharField(
+        max_length=30,
+        blank=False,
+        null=False,
+        unique=True,
+        verbose_name='Name of the tag'
+    )
+    color = models.CharField(
+        max_length=7,
+        default="#ffffff",
+        unique=True,
+        verbose_name='Color of the tag'
+    )
+    slug = models.SlugField(
+        max_length=30,
+        unique=True,
+        verbose_name='Slug of the tag'
+    )
+    
+    class Meta():
+        ordering = ['-name']
+        verbose_name = 'Tag'
+        verbose_name_plural = 'Tags'
+
+
+class Ingredient (models.Model):
+    name = models.CharField(
         max_length=256,
         blank=False,
         null=False,
         unique=True,
         verbose_name='Name of the tag'
     )
-    hexcolor = models.CharField(
-        max_length=7,
-        default="#ffffff"
+    quantity = models.DecimalField(
+        blank=False,
+        null=False,
+        max_digits=5,
+        decimal_places=2,
+        validators=[
+            MinValueValidator(0)
+        ],
+        verbose_name='Cooking time of the dish'
     )
-    slug = models.SlugField(
-        max_length=50,
-        unique=True
-    )
-
-    def colored_name(self):
-        return format_html(
-            '<span style="color: #{};">{}</span>',
-            self.hexcolor,
-        )
-    
 
 
 class Recipe(models.Model):
@@ -56,6 +77,7 @@ class Recipe(models.Model):
         'Image',
         upload_to='recipes/',
         blank=True,
+        default=None,
         verbose_name='Image of the recipe'
     )
     cooking_time = models.PositiveIntegerField(
@@ -70,7 +92,7 @@ class Recipe(models.Model):
         auto_now_add=True,
         verbose_name='Date of creation'
     )
-    
+
     class Meta:
         ordering = ('-pub_date',)
         verbose_name = 'Recipe'
