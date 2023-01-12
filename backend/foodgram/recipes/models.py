@@ -151,17 +151,39 @@ class FavoriteRecipes (models.Model):
         on_delete=models.CASCADE,
         null=True,
         related_name='favorites',
-        verbose_name='User')
+        verbose_name='User'
+    )
+    
+    def __str__(self):
+        return f'Favorite recipes of {self.user}'
 
     class Meta():
         ordering = ['-id']
         verbose_name = 'Favorite recipe'
         verbose_name_plural = 'Favorite recipes'
-    
 
 
+class ShoppingList (models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='shopping_list',
+        verbose_name= 'Ingredients to buy'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name='shopping_list',
+        verbose_name='User'
+    )
 
+    def __str__(self):
+        return f'Ingredients to buy for {self.user}'
 
-
+    class Meta():
+        ordering = ['-id']
+        verbose_name = 'Ingredient to buy'
+        verbose_name_plural = 'Ingredients to buy'
 
 
