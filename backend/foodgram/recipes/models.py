@@ -2,12 +2,35 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils.html import format_html
 
 
 User = get_user_model()
 
- 
 
+class Tag(models.Model):
+    name = models.CharField(
+        max_length=256,
+        blank=False,
+        null=False,
+        unique=True,
+        verbose_name='Name of the tag'
+    )
+    hexcolor = models.CharField(
+        max_length=7,
+        default="#ffffff"
+    )
+    slug = models.SlugField(
+        max_length=50,
+        unique=True
+    )
+
+    def colored_name(self):
+        return format_html(
+            '<span style="color: #{};">{}</span>',
+            self.hexcolor,
+        )
+    
 
 
 class Recipe(models.Model):
