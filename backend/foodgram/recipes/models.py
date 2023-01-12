@@ -41,8 +41,8 @@ class Ingredient (models.Model):
         unique=True,
         verbose_name='Name of the tag'
     )
-    unit = models.CharField(
-        max_length=60,
+    measurement_unit = models.CharField(
+        max_length=256,
         verbose_name='Unit of measurement',
     )
 
