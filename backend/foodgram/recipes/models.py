@@ -113,7 +113,7 @@ class RecipeIngredients (models.Model):
         Recipe,
         on_delete=models.CASCADE,
         related_name='recipes',
-        verbose_name= 'Recipe'
+        verbose_name='Recipe'
     )
     ingredient = models.ForeignKey(
         Ingredient,
@@ -144,7 +144,7 @@ class FavoriteRecipes (models.Model):
         Recipe,
         on_delete=models.CASCADE,
         related_name='favorites',
-        verbose_name= 'Favorite Recipes of the user'
+        verbose_name='Favorite Recipes of the user'
     )
     user = models.ForeignKey(
         User,
@@ -168,7 +168,7 @@ class ShoppingList (models.Model):
         Recipe,
         on_delete=models.CASCADE,
         related_name='shopping_list',
-        verbose_name= 'Ingredients to buy'
+        verbose_name='Ingredients to buy'
     )
     user = models.ForeignKey(
         User,
