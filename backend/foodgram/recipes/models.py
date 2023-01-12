@@ -87,8 +87,13 @@ class Recipe(models.Model):
         validators=[
             MinValueValidator(1)
         ],
-        verbose_name='Cooking time of the dish'
+        verbose_name='Cooking time of the dish in minutes'
     )
+    tag = models.ManyToManyField(
+        Tag,
+        related_name='recipes',
+        verbose_name='Tags of the recipe',
+    )    
     pub_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Date of creation'
@@ -101,6 +106,29 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name[:settings.STRING_LEN]
+
+
+class RecipeIngredients (models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='recipes',
+        verbose_name= 'Recipe'
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        related_name='ingredients',
+        verbose_name='Ingredient of the recipe'
+    )
+    quantity = models.PositiveIntegerField(
+        blank=False,
+        null=False,
+        validators=[
+            MinValueValidator(1),
+        ],
+        verbose_name='Ingredient quantity'
+    )
 
 
 
