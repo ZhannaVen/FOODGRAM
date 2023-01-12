@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils.html import format_html
 
 
 User = get_user_model()
@@ -42,16 +41,18 @@ class Ingredient (models.Model):
         unique=True,
         verbose_name='Name of the tag'
     )
-    quantity = models.DecimalField(
-        blank=False,
-        null=False,
-        max_digits=5,
-        decimal_places=2,
-        validators=[
-            MinValueValidator(0)
-        ],
-        verbose_name='Cooking time of the dish'
+    unit = models.CharField(
+        max_length=60,
+        verbose_name='Unit of measurement',
     )
+
+    def __str__(self):
+        return self.name
+
+    class Meta():
+        ordering = ['-name']
+        verbose_name = 'Ingredient'
+        verbose_name_plural = 'Ingredients'
 
 
 class Recipe(models.Model):
