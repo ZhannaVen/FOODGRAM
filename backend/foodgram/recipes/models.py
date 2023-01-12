@@ -129,6 +129,20 @@ class RecipeIngredients (models.Model):
         ],
         verbose_name='Ingredient quantity'
     )
+     
+    class Meta:
+        ordering = ['-ingredient']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='all_keys_unique_together')]
+        verbose_name = 'Quantity of each ingredient'
+
+
+
+
+
+
 
 
 
