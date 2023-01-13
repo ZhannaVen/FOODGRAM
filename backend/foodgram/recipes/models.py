@@ -19,7 +19,7 @@ class Tag(models.Model):
         max_length=7,
         default="#ffffff",
         unique=True,
-        verbose_name='Color of the tag'
+        verbose_name='HEX color of the tag'
     )
     slug = models.SlugField(
         max_length=30,
@@ -47,7 +47,7 @@ class Ingredient (models.Model):
     )
 
     class Meta():
-        ordering = ['-name']
+        ordering = ['name']
         verbose_name = 'Ingredient'
         verbose_name_plural = 'Ingredients'
 
@@ -91,6 +91,7 @@ class Recipe(models.Model):
     )
     ingredient = models.ManyToManyField(
         Ingredient,
+        through='RecipeIngredients',
         on_delete=models.CASCADE,
         verbose_name='Ingredients in the recipe',
     )
@@ -136,7 +137,7 @@ class RecipeIngredients (models.Model):
     )
      
     class Meta:
-        ordering = ['-ingredient']
+        ordering = ['ingredient']
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
