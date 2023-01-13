@@ -36,10 +36,8 @@ class Tag(models.Model):
 class Ingredient (models.Model):
     name = models.CharField(
         max_length=256,
-        blank=False,
-        null=False,
         unique=True,
-        verbose_name='Name of the tag'
+        verbose_name='Name of the Ingredient'
     )
     measurement_unit = models.CharField(
         max_length=256,
