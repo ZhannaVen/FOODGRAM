@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'django_filters',
     'users.apps.UsersConfig',
     'recipes.apps.RecipesConfig',
+    'api.apps.ApiConfig',
 
 
 ]
