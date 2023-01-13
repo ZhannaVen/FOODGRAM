@@ -13,13 +13,13 @@ class Tag(models.Model):
         blank=False,
         null=False,
         unique=True,
-        verbose_name='Name of the tag'
+        verbose_name='Name of the tag',
     )
     color = models.CharField(
         max_length=7,
         default="#ffffff",
         unique=True,
-        verbose_name='HEX color of the tag'
+        verbose_name='HEX color of the tag',
     )
     slug = models.SlugField(
         max_length=30,
@@ -78,8 +78,7 @@ class Recipe(models.Model):
         'Image',
         upload_to='recipes/',
         blank=True,
-        default=None,
-        verbose_name='Image of the recipe'
+        default=None
     )
     cooking_time = models.PositiveIntegerField(
         blank=False,
@@ -92,7 +91,6 @@ class Recipe(models.Model):
     ingredient = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredients',
-        on_delete=models.CASCADE,
         verbose_name='Ingredients in the recipe',
     )
     tag = models.ManyToManyField(

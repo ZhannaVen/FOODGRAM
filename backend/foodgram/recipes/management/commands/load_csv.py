@@ -11,10 +11,10 @@ class Command(BaseCommand):
     files is performed by the python manage.py load_csv command.
     """
     def handle(self, *args, **kwargs):
-        data_path = settings.BASE_DIR
+        
         try:
             with open(
-                f'{data_path}/data/ingredients.csv',
+                f'data/ingredients.csv',
                 'r',
                 encoding='utf-8'
             ) as csv_data:
