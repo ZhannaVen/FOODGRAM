@@ -89,11 +89,16 @@ class Recipe(models.Model):
         ],
         verbose_name='Cooking time of the dish in minutes'
     )
+    ingredient = models.ManyToManyField(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='Ingredients in the recipe',
+    )
     tag = models.ManyToManyField(
         Tag,
         related_name='recipes',
         verbose_name='Tags of the recipe',
-    )    
+    )
     pub_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Date of creation'
