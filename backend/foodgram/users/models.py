@@ -5,18 +5,13 @@ from .validators import validate_username
 
 
 class User(AbstractUser):
-    ADMIN = 'admin'
-    USER = 'user'
-    USER_ROLE_CHOICES = [
-        (ADMIN, 'Administrator'),
-        (USER, 'User')
-    ]
     username = models.CharField(
         validators=(validate_username,),
         max_length=150,
         unique=True,
         blank=False,
-        null=False
+        null=False,
+        verbose_name='Login of the user'
     )
     email = models.EmailField(
         max_length=254,
@@ -35,19 +30,12 @@ class User(AbstractUser):
         blank=True,
         verbose_name='Family name of the user'
     )
-    role = models.CharField(
-        max_length=25,
-        choices=USER_ROLE_CHOICES,
-        default=USER,
-        blank=True,
-        verbose_name='Role of the user'
-    )
     REQUIRED_FIELDS = [
         'email',
         'first_name',
         'last_name'
     ]
-    
+
     class Meta:
         ordering = ('id',)
         verbose_name = 'User'
