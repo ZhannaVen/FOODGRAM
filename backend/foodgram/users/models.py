@@ -43,7 +43,7 @@ class User(AbstractUser):
         verbose_name='Role of the user'
     )
     REQUIRED_FIELDS = [
-        'username',
+        'email',
         'first_name',
         'last_name'
     ]
