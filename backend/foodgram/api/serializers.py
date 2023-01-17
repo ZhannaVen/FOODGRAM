@@ -3,8 +3,16 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import Follow
 from rest_framework.fields import SerializerMethodField
 from rest_framework import serializers
+from drf_extra_fields.fields import Base64ImageField
 
-from recipes.models import Tag, Ingredient, Recipe
+from recipes.models import (
+    Tag,
+    Ingredient,
+    Recipe,
+    FavoriteRecipes,
+    ShoppingList,
+    RecipeIngredients
+)
 
 
 User = get_user_model()
@@ -62,8 +70,15 @@ class CustomUserSerializer(UserSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    '''Serializer for displaying a list tags or a chosen one.
+    '''
     class Meta:
         fields = (
+            'name',
+            'color',
+            'slug',
+        )
+        read_only_fields = (
             'name',
             'color',
             'slug',
@@ -73,8 +88,16 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    '''Serializer for displaying a list ingredients or a chosen one.
+    '''
     class Meta:
         fields = (
+            'id',
+            'name',
+            'measurement_unit',
+        )
+        read_only_fields = (
+            'id',
             'name',
             'measurement_unit',
         )
@@ -82,10 +105,35 @@ class IngredientSerializer(serializers.ModelSerializer):
         model = Ingredient
 
 
+class RecipeIngredientsSerializer(serializers.ModelSerializer):
+    '''Serializer for displaying a list of ingredients and their amount.
+    Only needed for RecipeReadSerializer.
+    '''
+    id = serializers.ReadOnlyField(source='ingredients.id')
+    name = serializers.ReadOnlyField(source='ingredients.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredients.measurement_unit'
+    )
+
+    class Meta:
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+            'amount',
+        )
+        model = RecipeIngredients
+
+
 class RecipeReadSerializer(serializers.ModelSerializer):
-    queryset = Recipe.objects.all()
-    ingredients = IngredientSerializer(many=True)
+    '''Serializer for displaying a list of recipes.
+    '''
     tags = TagSerializer(many=True)
+    author = CustomUserSerializer()
+    ingredients = SerializerMethodField()
+    is_favorited = SerializerMethodField()
+    is_in_shopping_list = SerializerMethodField()
+    image = Base64ImageField()
 
     class Meta:
         fields = (
@@ -101,10 +149,71 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             'cooking_time',
         )
         read_only_fields = (
-            'id', 'rating',
+            'tags',
+            'author',
+            'ingredients',
+            'is_favorited',
+            'is_in_shopping_list'
+
         )
         model = Recipe
+    
+    def get_ingredients(self, obj):
+        queryset = RecipeIngredients.objects.filter(recipe=obj)
+        return RecipeIngredientsSerializer(queryset, many=True).data
 
+    def get_is_favorited(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return user.favorites.filter(recipe=obj).exists()
+
+    def get_is_in_shopping_list(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return user.shopping_list.filter(recipe=obj).exists()
+
+
+class IngredientWriteSerializer(serializers.ModelSerializer):
+    '''Serializer for adding an ingredient and its amount to the recipe.
+    Only needed for RecipeWriteSerializer.
+    '''
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField()
+
+    class Meta:
+        fields = (
+            'id',
+            'amount'
+        )
+        model = RecipeIngredients
+
+
+class RecipeWriteSerializer(serializers.ModelSerializer):
+    '''Serializer for adding, changing, deleting a recipe.
+    '''
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(), many=True
+    )
+    author = CustomUserSerializer()
+    ingredients = IngredientWriteSerializer(many=True)
+    image = Base64ImageField()
+
+    class Meta:
+        fields = (
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'name',
+            'image',
+            'text',
+            'cooking_time',
+        )
+        read_only_fields = ('author',)
+        model = Recipe
+    
 
 
 

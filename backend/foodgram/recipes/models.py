@@ -123,13 +123,13 @@ class RecipeIngredients (models.Model):
         related_name='ingredients',
         verbose_name='Ingredient of the recipe'
     )
-    quantity = models.PositiveIntegerField(
+    amount = models.PositiveIntegerField(
         blank=False,
         null=False,
         validators=[
             MinValueValidator(1),
         ],
-        verbose_name='Ingredient quantity'
+        verbose_name='Ingredient amount'
     )
      
     class Meta:
