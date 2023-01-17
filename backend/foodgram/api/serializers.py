@@ -279,37 +279,111 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             }).data
 
 
-class FavoriteRecipesSerializer(serializers.ModelSerilizer):
+class BriefRecipeSerializer(serializers.ModelSerializer):
+    '''Serializer for displaying a brief recipe.
+    Onle needed for FavoriteRecipes and ShoppingList serializers.
+    '''
+    class Meta:
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
+        model = Recipe
+
+
+class FavoriteRecipesSerializer(serializers.ModelSerializer):
     '''Serializer for displaying a list of favorite recipes.
     '''
-    id = serializers.ReadOnlyField(source='recipe.id')
-    name = serializers.ReadOnlyField(source='recipe.name')
-    image = serializers.ImageField(source='recipe.image')
-    cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time')
-    
     class Meta:
-        fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time',
-        )
+        fields = ('user', 'recipe')
         model = FavoriteRecipes
 
+    def validate(self, data):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        recipe = data['recipe']
+        if FavoriteRecipes.objects.filter(
+            user=request.user, recipe=recipe
+        ).exists():
+            raise serializers.ValidationError({
+                'status': 'You has already added this recipe to favorite ones!'
+            })
+        return data
 
-class ShoppingListSerializer(serializers.ModelSerilizer):
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return BriefRecipeSerializer(
+            instance.recipe, context=context).data
+
+
+class ShoppingListSerializer(serializers.ModelSerializer):
     '''Serializer for displaying a list of recipes for shopping.
     '''
-    id = serializers.ReadOnlyField(source='recipe.id')
-    name = serializers.ReadOnlyField(source='recipe.name')
-    image = serializers.ImageField(source='recipe.image')
-    cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time')
-    
     class Meta:
+        model = ShoppingList
+        fields = ('user', 'recipe')
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return BriefRecipeSerializer(
+            instance.recipe, context=context).data
+
+
+class FollowRecipeSerializers(serializers.ModelSerializer):
+    '''Serializer for displaying a list of recipes in FollowUserSerializer.
+    '''
+    class Meta:
+        model = Recipe
         fields = (
             'id',
             'name',
             'image',
-            'cooking_time',
+            'cooking_time'
         )
-        model = ShoppingList
+
+
+class FollowSerializer(serializers.ModelSerializer):
+    email = serializers.ReadOnlyField(source='author.email')
+    id = serializers.ReadOnlyField(source='author.id')
+    username = serializers.ReadOnlyField(source='author.username')
+    first_name = serializers.ReadOnlyField(source='author.first_name')
+    last_name = serializers.ReadOnlyField(source='author.last_name')
+    is_subscribed = serializers.SerializerMethodField()   
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count',
+        )
+        model = Follow
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return Follow.objects.filter(user=user, author=obj.author).exists()
+    
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        recipes_limit = request.GET.get('recipes_limit')
+        queryset = Recipe.objects.filter(author=obj.author)
+        if recipes_limit:
+            queryset = queryset[:int(recipes_limit)]
+        return FollowRecipeSerializers(queryset, many=True).data
+
+    def get_recipes_count(self, obj):
+        return Recipe.objects.filter(author=obj.author).count()
+
