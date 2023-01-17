@@ -4,6 +4,7 @@ from recipes.models import Follow
 from rest_framework.fields import SerializerMethodField
 from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
+from django.shortcuts import get_object_or_404
 
 from recipes.models import (
     Tag,
@@ -191,7 +192,7 @@ class IngredientWriteSerializer(serializers.ModelSerializer):
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
-    '''Serializer for adding, changing, deleting a recipe.
+    '''Serializer for adding, editing, deleting a recipe.
     '''
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True
@@ -211,28 +212,71 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
-        read_only_fields = ('id', 'author',)
+        read_only_fields = ('author',)
         model = Recipe
 
+    def validate(self, data):
+        ingredients = data['ingredients']
+        if not ingredients:
+            raise serializers.ValidationError(
+                'Add at least one ingredient')
+        ingredients_list = []
+        for item in ingredients:
+            ingredient = get_object_or_404(Ingredient, id=item['id'])
+            if ingredient in ingredients_list:
+                raise serializers.ValidationError(
+                    'Ingredient should be unique!')
+            ingredients_list.append(ingredient)
+        
+        tags = data['tags']
+        if not tags:
+            raise serializers.ValidationError(
+                'Add at least one tag')
+        for tag in tags:
+            if not Tag.objects.filter(name=tag).exists():
+                raise serializers.ValidationError(
+                    f'Tag {tag} does not exist!')
+        return data
 
-class RecipeBriefSerializer(serializers.ModelSerializer):
-    '''Serializer for displaying a brief recipe.
-    Only needed for FavoriteRecipeSerializer and ShoppingListSerilizer.
-    '''
-    class Meta:
-        fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time',
-        )
-        read_only_fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time',
-        )
-        model = Recipe
+    def validate_cooking_time(self, cooking_time):
+        if int(cooking_time) < 1:
+            raise serializers.ValidationError(
+                'Cooking time should be >= 1')
+        return cooking_time
+
+    def create_ingredients(self, ingredients, recipe):
+        for ingredient in ingredients:
+            RecipeIngredients.objects.create(
+                recipe=recipe,
+                ingredient_id=ingredient.get('id'),
+                amount=ingredient.get('amount'), 
+            )
+
+    def create(self, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
+        recipe.tags.set(tags)
+        self.create_ingredients(ingredients, recipe)
+        return recipe
+
+    def update(self, instance, validated_data):
+        if 'ingredients' in validated_data:
+            ingredients = validated_data.pop('ingredients')
+            instance.ingredients.clear()
+            self.create_ingredients(ingredients, instance)
+        if 'tags' in validated_data:
+            instance.tags.set(
+                validated_data.pop('tags'))
+        return super().update(
+            instance, validated_data)
+
+    def to_representation(self, instance):
+        return RecipeReadSerializer(
+            instance,
+            context={
+                'request': self.context.get('request')
+            }).data
 
 
 class FavoriteRecipesSerializer(serializers.ModelSerilizer):
@@ -254,7 +298,7 @@ class FavoriteRecipesSerializer(serializers.ModelSerilizer):
 
 
 class ShoppingListSerializer(serializers.ModelSerilizer):
-    '''Serializer for displaying a list of recipes for shopping list.
+    '''Serializer for displaying a list of recipes for shopping.
     '''
     id = serializers.ReadOnlyField(source='recipe.id')
     name = serializers.ReadOnlyField(source='recipe.name')
