@@ -211,11 +211,61 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
-        read_only_fields = ('author',)
+        read_only_fields = ('id', 'author',)
         model = Recipe
+
+
+class RecipeBriefSerializer(serializers.ModelSerializer):
+    '''Serializer for displaying a brief recipe.
+    Only needed for FavoriteRecipeSerializer and ShoppingListSerilizer.
+    '''
+    class Meta:
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
+        read_only_fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
+        model = Recipe
+
+
+class FavoriteRecipesSerializer(serializers.ModelSerilizer):
+    '''Serializer for displaying a list of favorite recipes.
+    '''
+    id = serializers.ReadOnlyField(source='recipe.id')
+    name = serializers.ReadOnlyField(source='recipe.name')
+    image = serializers.ImageField(source='recipe.image')
+    cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time')
     
+    class Meta:
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
+        model = FavoriteRecipes
 
 
-
-
-
+class ShoppingListSerializer(serializers.ModelSerilizer):
+    '''Serializer for displaying a list of recipes for shopping list.
+    '''
+    id = serializers.ReadOnlyField(source='recipe.id')
+    name = serializers.ReadOnlyField(source='recipe.name')
+    image = serializers.ImageField(source='recipe.image')
+    cooking_time = serializers.ReadOnlyField(source='recipe.cooking_time')
+    
+    class Meta:
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
+        model = ShoppingList
