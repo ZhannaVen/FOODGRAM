@@ -61,7 +61,7 @@ class Recipe(models.Model):
         unique=False,
         verbose_name='Name of the recipe'
     )
-    description = models.TextField(
+    text = models.TextField(
         null=True,
         blank=True,
         verbose_name='Description of the recipe'
@@ -86,12 +86,12 @@ class Recipe(models.Model):
         ],
         verbose_name='Cooking time of the dish in minutes'
     )
-    ingredient = models.ManyToManyField(
+    ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredients',
         verbose_name='Ingredients in the recipe',
     )
-    tag = models.ManyToManyField(
+    tags = models.ManyToManyField(
         Tag,
         related_name='recipes',
         verbose_name='Tags of the recipe',
@@ -117,7 +117,7 @@ class RecipeIngredients (models.Model):
         related_name='recipes',
         verbose_name='Recipe'
     )
-    ingredient = models.ForeignKey(
+    ingredients = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
         related_name='ingredients',
