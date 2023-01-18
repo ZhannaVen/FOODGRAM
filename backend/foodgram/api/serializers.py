@@ -5,6 +5,7 @@ from rest_framework.fields import SerializerMethodField
 from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 from django.shortcuts import get_object_or_404
+from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import (
     Tag,
@@ -281,7 +282,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
 class BriefRecipeSerializer(serializers.ModelSerializer):
     '''Serializer for displaying a brief recipe.
-    Onle needed for FavoriteRecipes and ShoppingList serializers.
+    Onle needed for FavoriteRecipesSerilizer, ShoppingListSerislizer
+    and FollowSerializer.
     '''
     class Meta:
         fields = (
@@ -334,26 +336,15 @@ class ShoppingListSerializer(serializers.ModelSerializer):
             instance.recipe, context=context).data
 
 
-class FollowRecipeSerializers(serializers.ModelSerializer):
-    '''Serializer for displaying a list of recipes in FollowUserSerializer.
-    '''
-    class Meta:
-        model = Recipe
-        fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time'
-        )
-
-
 class FollowSerializer(serializers.ModelSerializer):
+    '''Serializer for displaying a list of subscriptions of the user.
+    '''
     email = serializers.ReadOnlyField(source='author.email')
     id = serializers.ReadOnlyField(source='author.id')
     username = serializers.ReadOnlyField(source='author.username')
     first_name = serializers.ReadOnlyField(source='author.first_name')
     last_name = serializers.ReadOnlyField(source='author.last_name')
-    is_subscribed = serializers.SerializerMethodField()   
+    is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
@@ -382,7 +373,7 @@ class FollowSerializer(serializers.ModelSerializer):
         queryset = Recipe.objects.filter(author=obj.author)
         if recipes_limit:
             queryset = queryset[:int(recipes_limit)]
-        return FollowRecipeSerializers(queryset, many=True).data
+        return BriefRecipeSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj.author).count()

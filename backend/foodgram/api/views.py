@@ -4,12 +4,14 @@ from django.http import HttpResponse
 from djoser.views import UserViewSet
 from users.models import User
 from django.shortcuts import get_object_or_404
+from rest_framework.generics import ListAPIView
 from .serializers import CustomUserSerializer
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
     SAFE_METHODS,
     IsAuthenticated
 )
+from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -21,6 +23,7 @@ from .serializers import (
     RecipeReadSerializer,
     RecipeWriteSerializer,
     BriefRecipeSerializer,
+    FollowSerializer
 
 )
 from recipes.models import (
@@ -29,7 +32,8 @@ from recipes.models import (
     Recipe,
     FavoriteRecipes,
     ShoppingList,
-    RecipeIngredients
+    RecipeIngredients,
+    Follow
 
 )
 from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
@@ -43,15 +47,19 @@ class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-
+    
 
 class TagViewSet(ReadOnlyModelViewSet):
+    '''Getting data about tags.
+    '''
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAdminOrReadOnly,)
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
+    '''Getting data about ingredients.
+    '''
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly,)
@@ -60,6 +68,10 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
+    '''Getting data about recipes.
+    Adding, editing, deleting recipes.
+    Downloading ingredients to buy.
+    '''
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrReadOnly, IsAdminOrReadOnly,)
     pagination_class = CustomPageNumberPagination
@@ -147,3 +159,62 @@ class RecipeViewSet(ModelViewSet):
         response['Content-Disposition'] = f'attachment; filename={filename}'
 
         return response
+
+
+class FollowViewSet(APIView):
+    '''Creating and deleting subscriptions.
+    '''
+    serializer_class = FollowSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = CustomPageNumberPagination
+
+    def post(self, request, *args, **kwargs):
+        user_id = self.kwargs.get('user_id')
+        if user_id == request.user.id:
+            return Response(
+                {'error': 'You can not follow youself'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if Follow.objects.filter(
+                user=request.user,
+                author_id=user_id
+        ).exists():
+            return Response(
+                {'error': 'You have already subscribed to this user'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        author = get_object_or_404(User, id=user_id)
+        Follow.objects.create(
+            user=request.user,
+            author_id=user_id
+        )
+        return Response(
+            self.serializer_class(author, context={'request': request}).data,
+            status=status.HTTP_201_CREATED
+        )
+
+    def delete(self, request, *args, **kwargs):
+        user_id = self.kwargs.get('user_id')
+        get_object_or_404(User, id=user_id)
+        subscription = Follow.objects.filter(
+            user=request.user,
+            author_id=user_id
+        )
+        if subscription:
+            subscription.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'error': 'You do not have this user in subscriptions'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class FollowListView(ListAPIView):
+    '''Getting data about sbscriptions.
+    '''
+    serializer_class = FollowSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = CustomPageNumberPagination
+
+    def get_queryset(self):
+        return self.request.user.follower.all()
