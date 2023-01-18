@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
-
 User = get_user_model()
 
 
@@ -26,7 +25,7 @@ class Tag(models.Model):
         unique=True,
         verbose_name='Slug of the tag'
     )
-    
+
     class Meta():
         ordering = ['-name']
         verbose_name = 'Tag'
@@ -50,7 +49,7 @@ class Ingredient (models.Model):
         verbose_name_plural = 'Ingredients'
 
     def __str__(self):
-        return self.name[:settings.STRING_LEN]  
+        return self.name[:settings.STRING_LEN]
 
 
 class Recipe(models.Model):
@@ -130,7 +129,7 @@ class RecipeIngredients (models.Model):
         ],
         verbose_name='Ingredient amount'
     )
-     
+
     class Meta:
         ordering = ['ingredient']
         constraints = [
@@ -154,7 +153,7 @@ class FavoriteRecipes (models.Model):
         related_name='favorites',
         verbose_name='User'
     )
-    
+
     def __str__(self):
         return f'Favorite recipes of {self.user}'
 
@@ -208,8 +207,3 @@ class Follow(models.Model):
                 name='unique_subscriptions')]
         verbose_name = 'Subscription'
         verbose_name_plural = 'Subscriptions'
-
-
-
-
-

@@ -1,44 +1,27 @@
 from datetime import datetime
+
 from django.db.models import Sum
 from django.http import HttpResponse
-from djoser.views import UserViewSet
-from users.models import User
 from django.shortcuts import get_object_or_404
-from rest_framework.generics import ListAPIView
-from .serializers import CustomUserSerializer
-from rest_framework.permissions import (
-    IsAuthenticatedOrReadOnly,
-    SAFE_METHODS,
-    IsAuthenticated
-)
-from rest_framework.views import APIView
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
 from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from .serializers import (
-    TagSerializer,
-    IngredientSerializer,
-    RecipeReadSerializer,
-    RecipeWriteSerializer,
-    BriefRecipeSerializer,
-    FollowSerializer
 
-)
-from recipes.models import (
-    Tag,
-    Ingredient,
-    Recipe,
-    FavoriteRecipes,
-    ShoppingList,
-    RecipeIngredients,
-    Follow
+from recipes.models import (FavoriteRecipes, Follow, Ingredient, Recipe,
+                            RecipeIngredients, ShoppingList, Tag)
+from users.models import User
 
-)
-from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPageNumberPagination
+from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
+from .serializers import (BriefRecipeSerializer, CustomUserSerializer,
+                          FollowSerializer, IngredientSerializer,
+                          RecipeReadSerializer, RecipeWriteSerializer,
+                          TagSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
@@ -141,8 +124,7 @@ class RecipeViewSet(ModelViewSet):
     def favorite(self, request, pk):
         if request.method == 'POST':
             return self.add_to(FavoriteRecipes, request.user, pk)
-        else:
-            return self.delete_from(FavoriteRecipes, request.user, pk)
+        return self.delete_from(FavoriteRecipes, request.user, pk)
 
     @action(
         detail=True,
@@ -152,8 +134,7 @@ class RecipeViewSet(ModelViewSet):
     def shopping_cart(self, request, pk):
         if request.method == 'POST':
             return self.add_to(ShoppingList, request.user, pk)
-        else:
-            return self.delete_from(ShoppingList, request.user, pk)
+        return self.delete_from(ShoppingList, request.user, pk)
 
     def add_to(self, model, user, pk):
         if model.objects.filter(user=user, recipe__id=pk).exists():
@@ -206,4 +187,3 @@ class RecipeViewSet(ModelViewSet):
         response['Content-Disposition'] = f'attachment; filename={filename}'
 
         return response
-

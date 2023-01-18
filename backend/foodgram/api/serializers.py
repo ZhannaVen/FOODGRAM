@@ -1,22 +1,13 @@
 from django.contrib.auth import get_user_model
-from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.models import Follow
-from rest_framework.fields import SerializerMethodField, IntegerField
-from rest_framework import serializers
-from drf_extra_fields.fields import Base64ImageField
 from django.shortcuts import get_object_or_404
+from djoser.serializers import UserCreateSerializer, UserSerializer
+from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
-from rest_framework import status
+from rest_framework.fields import IntegerField, SerializerMethodField
 
-from recipes.models import (
-    Tag,
-    Ingredient,
-    Recipe,
-    FavoriteRecipes,
-    ShoppingList,
-    RecipeIngredients
-)
-
+from recipes.models import (FavoriteRecipes, Follow, Ingredient, Recipe,
+                            RecipeIngredients, ShoppingList, Tag)
 
 User = get_user_model()
 
@@ -35,7 +26,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
             'password',
         )
         extra_kwargs = {'password': {'write_only': True}}
-        
+
         def create(self, validated_data):
             user = User.objects.create(
                 email=validated_data['email'],
@@ -154,7 +145,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             'is_in_shopping_list'
         )
         model = Recipe
-    
+
     def get_ingredients(self, obj):
         queryset = RecipeIngredients.objects.filter(recipe=obj)
         return RecipeIngredientsSerializer(queryset, many=True).data
@@ -223,7 +214,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     'Ingredient should be unique!')
             ingredients_list.append(ingredient)
-        
+
     def validate_tags(self, data):
         tags = data['tags']
         if not tags:
@@ -374,7 +365,7 @@ class FollowSerializer(serializers.ModelSerializer):
                 code=status.HTTP_400_BAD_REQUEST
             )
         return data
-    
+
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
         if user.is_anonymous:
@@ -391,4 +382,3 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
-
