@@ -5,7 +5,6 @@ from rest_framework.fields import SerializerMethodField
 from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 from django.shortcuts import get_object_or_404
-from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import (
     Tag,
@@ -27,6 +26,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
         model = User
         fields = (
             'email',
+            'id',
             'username',
             'first_name',
             'last_name',
@@ -366,7 +366,7 @@ class FollowSerializer(serializers.ModelSerializer):
         if user.is_anonymous:
             return False
         return Follow.objects.filter(user=user, author=obj.author).exists()
-    
+
     def get_recipes(self, obj):
         request = self.context.get('request')
         recipes_limit = request.GET.get('recipes_limit')
