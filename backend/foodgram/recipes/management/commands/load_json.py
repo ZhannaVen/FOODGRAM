@@ -30,7 +30,7 @@ class Command(BaseCommand):
                     except IntegrityError:
                         print(f'Ingredient {ingredient["name"]} '
                               f'{ingredient["measurement_unit"]} '
-                              f'already added to the database')
+                              f'has been already added to the database')
 
         except FileNotFoundError:
             raise CommandError(_('The file is missing in the data folder'))
