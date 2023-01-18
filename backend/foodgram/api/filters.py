@@ -6,16 +6,26 @@ User = get_user_model()
 
 
 class IngredientFilter(FilterSet):
-    name = filters.CharFilter(lookup_expr='startswith')
+    '''Filter for searching the ingredient
+    by writting just some first letters.
+    '''
+    name = filters.CharFilter(
+        field_name='name', lookup_expr='startswith'
+    )
 
     class Meta:
         model = Ingredient
-        fields = ['name']
+        fields = []
 
 
 class RecipeFilter(FilterSet):
+    '''Filter for searching the recipes
+    by tags or being in the list of favorites recipes
+    or being in the list of recipes in shopping list.
+    '''
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
+        lookup_expr='startswith',
         to_field_name='slug',
         queryset=Tag.objects.all(),
     )
@@ -34,7 +44,7 @@ class RecipeFilter(FilterSet):
             return queryset.filter(favorites__user=user)
         return queryset
 
-    def filter_is_in_shopping_cart(self, queryset, name, value):
+    def filter_is_in_shopping_list(self, queryset, name, value):
         user = self.request.user
         if value and not user.is_anonymous:
             return queryset.filter(shopping_list__user=user)

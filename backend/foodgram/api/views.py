@@ -43,7 +43,9 @@ from .pagination import CustomPageNumberPagination
 
 class CustomUserViewSet(UserViewSet):
     '''Getting data about users.
-    Additing/deleting users to/from subscriptions.
+    Additing users to subscriptions.
+    Deleting users from subscriptions.
+    Getting data about subscriptions.
     '''
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
@@ -114,8 +116,8 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 class RecipeViewSet(ModelViewSet):
     '''Getting data about recipes.
     Creating, editing, deleting recipes.
-    Additing recipes to favorite and shopping_cart.
-    Downloading ingredients to buy.
+    Adding recipes to favorite ones and to shopping list.
+    Downloading ingredients as shopping list.
     '''
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrReadOnly,)

@@ -74,7 +74,7 @@ class CustomUserSerializer(UserSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-    '''Serializer for displaying a list tags or a chosen one.
+    '''Serializer for displaying a list of tags or just one tag.
     '''
     class Meta:
         fields = (
@@ -86,7 +86,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    '''Serializer for displaying a list ingredients or a chosen one.
+    '''Serializer for displaying a list of ingredients or just one ingredient.
     '''
     class Meta:
         fields = (
@@ -152,7 +152,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             'ingredients',
             'is_favorited',
             'is_in_shopping_list'
-
         )
         model = Recipe
     
@@ -189,7 +188,7 @@ class IngredientWriteSerializer(serializers.ModelSerializer):
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
-    '''Serializer for adding, editing, deleting a recipe.
+    '''Serializer for creating, editing, deleting a recipe.
     '''
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
@@ -212,7 +211,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         )
         model = Recipe
 
-    def validate(self, data):
+    def validate_ingredints(self, data):
         ingredients = data['ingredients']
         if not ingredients:
             raise serializers.ValidationError(
@@ -225,10 +224,19 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                     'Ingredient should be unique!')
             ingredients_list.append(ingredient)
         
+    def validate_tags(self, data):
         tags = data['tags']
         if not tags:
             raise serializers.ValidationError(
                 'Add at least one tag')
+        tags_list = []
+        for item in tags:
+            tag = get_object_or_404(Tag, id=item['id'])
+            if tag in tags_list:
+                raise serializers.ValidationError(
+                    'Tag should be unique!')
+            tags_list.append(tag)
+
         return data
 
     def validate_cooking_time(self, cooking_time):
@@ -347,7 +355,10 @@ class FollowSerializer(serializers.ModelSerializer):
             'recipes_count',
         )
         model = User
-        read_only_fields = ('email', 'username')
+        read_only_fields = (
+            'email',
+            'username'
+        )
 
     def validate(self, data):
         author = self.instance
