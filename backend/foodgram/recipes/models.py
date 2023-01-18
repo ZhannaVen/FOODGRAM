@@ -185,8 +185,7 @@ class ShoppingList (models.Model):
 
     class Meta():
         ordering = ['-id']
-        verbose_name = 'Ingredient to buy'
-        verbose_name_plural = 'Ingredients to buy'
+        verbose_name = 'Shopping_cart'
 
 
 class Follow(models.Model):

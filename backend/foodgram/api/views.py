@@ -43,11 +43,55 @@ from .pagination import CustomPageNumberPagination
 
 class CustomUserViewSet(UserViewSet):
     '''Getting data about users.
+    Additing/deleting users to/from subscriptions.
     '''
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    
+
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated]
+    )
+    def subscribe(self, request, **kwargs):
+        user = request.user
+        author_id = self.kwargs.get('id')
+        author = get_object_or_404(User, id=author_id)
+
+        if request.method == 'POST':
+            serializer = FollowSerializer(
+                author,
+                data=request.data,
+                context={"request": request}
+            )
+            serializer.is_valid(raise_exception=True)
+            Follow.objects.create(user=user, author=author)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        if request.method == 'DELETE':
+            subscription = get_object_or_404(
+                Follow,
+                user=user,
+                author=author
+            )
+            subscription.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=False,
+        permission_classes=[IsAuthenticated]
+    )
+    def subscriptions(self, request):
+        user = request.user
+        queryset = User.objects.filter(subscribing__user=user)
+        pages = self.paginate_queryset(queryset)
+        serializer = FollowSerializer(
+            pages,
+            many=True,
+            context={'request': request}
+        )
+        return self.get_paginated_response(serializer.data)
+
 
 class TagViewSet(ReadOnlyModelViewSet):
     '''Getting data about tags.
@@ -69,11 +113,12 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 class RecipeViewSet(ModelViewSet):
     '''Getting data about recipes.
-    Adding, editing, deleting recipes.
+    Creating, editing, deleting recipes.
+    Additing recipes to favorite and shopping_cart.
     Downloading ingredients to buy.
     '''
     queryset = Recipe.objects.all()
-    permission_classes = (IsAuthorOrReadOnly, IsAdminOrReadOnly,)
+    permission_classes = (IsAuthorOrReadOnly,)
     pagination_class = CustomPageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
@@ -102,7 +147,7 @@ class RecipeViewSet(ModelViewSet):
         methods=['post', 'delete'],
         permission_classes=[IsAuthenticated]
     )
-    def shopping_list(self, request, pk):
+    def shopping_cart(self, request, pk):
         if request.method == 'POST':
             return self.add_to(ShoppingList, request.user, pk)
         else:
@@ -160,61 +205,3 @@ class RecipeViewSet(ModelViewSet):
 
         return response
 
-
-class FollowViewSet(APIView):
-    '''Creating and deleting subscriptions.
-    '''
-    serializer_class = FollowSerializer
-    permission_classes = [IsAuthenticated]
-    pagination_class = CustomPageNumberPagination
-
-    def post(self, request, *args, **kwargs):
-        user_id = self.kwargs.get('user_id')
-        if user_id == request.user.id:
-            return Response(
-                {'error': 'You can not follow youself'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        if Follow.objects.filter(
-                user=request.user,
-                author_id=user_id
-        ).exists():
-            return Response(
-                {'error': 'You have already subscribed to this user'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        author = get_object_or_404(User, id=user_id)
-        Follow.objects.create(
-            user=request.user,
-            author_id=user_id
-        )
-        return Response(
-            self.serializer_class(author, context={'request': request}).data,
-            status=status.HTTP_201_CREATED
-        )
-
-    def delete(self, request, *args, **kwargs):
-        user_id = self.kwargs.get('user_id')
-        get_object_or_404(User, id=user_id)
-        subscription = Follow.objects.filter(
-            user=request.user,
-            author_id=user_id
-        )
-        if subscription:
-            subscription.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(
-            {'error': 'You do not have this user in subscriptions'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-
-class FollowListView(ListAPIView):
-    '''Getting data about sbscriptions.
-    '''
-    serializer_class = FollowSerializer
-    permission_classes = [IsAuthenticated]
-    pagination_class = CustomPageNumberPagination
-
-    def get_queryset(self):
-        return self.request.user.follower.all()

@@ -125,6 +125,7 @@ DJOSER = {
         'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
         'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly']
     },
+    'HIDE_USERS': False,
 }
 
 AUTH_USER_MODEL = 'users.User'

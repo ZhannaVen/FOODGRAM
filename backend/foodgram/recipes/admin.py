@@ -26,6 +26,7 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = (
+        'id',
         'name',
         'measurement_unit',
     )
@@ -37,8 +38,11 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
+        'id',
         'name',
         'author',
+        'text',
+        'cooking_time',
         'pub_date',
     )
     search_fields = ('name', 'author', 'pub_date',)

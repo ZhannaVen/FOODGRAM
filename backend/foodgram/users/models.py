@@ -5,6 +5,12 @@ from .validators import validate_username
 
 
 class User(AbstractUser):
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = [
+        'username',
+        'first_name',
+        'last_name'
+    ]
     username = models.CharField(
         validators=(validate_username,),
         max_length=150,
@@ -30,11 +36,6 @@ class User(AbstractUser):
         blank=True,
         verbose_name='Family name of the user'
     )
-    REQUIRED_FIELDS = [
-        'email',
-        'first_name',
-        'last_name'
-    ]
 
     class Meta:
         ordering = ('id',)
