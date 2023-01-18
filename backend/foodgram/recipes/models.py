@@ -62,8 +62,8 @@ class Recipe(models.Model):
         verbose_name='Name of the recipe'
     )
     text = models.TextField(
-        null=True,
-        blank=True,
+        null=False,
+        blank=False,
         verbose_name='Description of the recipe'
     )
     author = models.ForeignKey(
@@ -75,8 +75,7 @@ class Recipe(models.Model):
     image = models.ImageField(
         'Image',
         upload_to='recipes/',
-        blank=True,
-        default=None
+        blank=False
     )
     cooking_time = models.PositiveIntegerField(
         blank=False,
