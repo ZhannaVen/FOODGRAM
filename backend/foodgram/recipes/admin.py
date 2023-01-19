@@ -37,10 +37,17 @@ class RecipeAdmin(admin.ModelAdmin):
         'text',
         'cooking_time',
         'pub_date',
+        'in_favorites'
     )
-    search_fields = ('name', 'author', 'pub_date',)
-    list_filter = ('name', 'author', 'pub_date',)
+    search_fields = ('name', 'author', 'pub_date', 'tags')
+    list_filter = ('name', 'author', 'pub_date', 'tags')
     empty_value_display = '-empty-'
+    
+    def in_favorites(self, obj):
+        '''The function counts total number
+        of added recipes to favorites.
+        '''
+        return obj.favorites.count()
 
 
 class RecipeIngredientsAdmin(admin.StackedInline):

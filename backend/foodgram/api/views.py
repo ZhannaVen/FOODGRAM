@@ -172,7 +172,7 @@ class RecipeViewSet(ModelViewSet):
         today = datetime.today()
         shopping_list = (
             f'Date: {today:%d-%m-%Y}\n\n'
-            f'Ingredients to buy for: {user.get_full_name()}\n\n'
+
         )
         shopping_list += '\n'.join([
             f'- {ingredient["ingredient__name"]}: '
@@ -180,7 +180,7 @@ class RecipeViewSet(ModelViewSet):
             f'({ingredient["ingredient__measurement_unit"]})'
             for ingredient in ingredients
         ])
-        shopping_list += f'\n\nFoodgram ({today:%Y})'
+        shopping_list += f'\n\nFoodgram - your product assistant ({today:%Y})'
 
         filename = f'{user.username}_shopping_list.txt'
         response = HttpResponse(shopping_list, content_type='text/plain')
