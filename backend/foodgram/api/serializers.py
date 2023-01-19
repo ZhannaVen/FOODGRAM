@@ -42,7 +42,7 @@ class CustomUserCreateSerializer(UserCreateSerializer):
 class CustomUserSerializer(UserSerializer):
     '''Serializer for getting user profile.
     Get_is_subscribed - shows whether the current user
-    is following the one being viewed.
+    follows the one being viewed.
     '''
     is_subscribed = SerializerMethodField(read_only=True)
 
@@ -356,7 +356,7 @@ class FollowSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         if Follow.objects.filter(author=author, user=user).exists():
             raise ValidationError(
-                detail='You have already subscribed this user',
+                detail='You have already subscribed to this user',
                 code=status.HTTP_400_BAD_REQUEST
             )
         if user == author:

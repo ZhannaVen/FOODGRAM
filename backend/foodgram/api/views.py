@@ -26,7 +26,7 @@ from .serializers import (BriefRecipeSerializer, CustomUserSerializer,
 
 class CustomUserViewSet(UserViewSet):
     '''Getting data about users.
-    Additing users to subscriptions.
+    Adding users to subscriptions.
     Deleting users from subscriptions.
     Getting data about subscriptions.
     '''
@@ -68,7 +68,7 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscriptions(self, request):
         user = request.user
-        queryset = User.objects.filter(subscribing__user=user)
+        queryset = User.objects.filter(following__user=user)
         pages = self.paginate_queryset(queryset)
         serializer = FollowSerializer(
             pages,
@@ -99,8 +99,8 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 class RecipeViewSet(ModelViewSet):
     '''Getting data about recipes.
     Creating, editing, deleting recipes.
-    Adding recipes to favorite ones and to shopping list.
-    Downloading ingredients as shopping list.
+    Adding recipes to favorites and to shopping list.
+    Downloading ingredients as file in txt.
     '''
     queryset = Recipe.objects.all()
     permission_classes = (IsAuthorOrReadOnly,)

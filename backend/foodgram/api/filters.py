@@ -8,12 +8,12 @@ User = get_user_model()
 
 class IngredientFilter(FilterSet):
     '''Filter for searching the ingredient
-    by writting just some first letters.
+    by writting just some first letters of the word.
     '''
     name = filters.CharFilter(
         field_name='name', lookup_expr='startswith'
     )
-    
+
     class Meta:
         model = Ingredient
         fields = []
@@ -21,8 +21,8 @@ class IngredientFilter(FilterSet):
 
 class RecipeFilter(FilterSet):
     '''Filter for searching the recipes
-    by tags or being in the list of favorites recipes
-    or being in the list of recipes in shopping list.
+    by tags or being in the list of favorite recipes
+    or being in shopping list.
     '''
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
