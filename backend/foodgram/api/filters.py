@@ -1,9 +1,6 @@
 from django_filters.rest_framework import FilterSet, filters
 
 from recipes.models import Ingredient, Recipe, Tag
-from users.models import User
-
-user = User
 
 
 class IngredientFilter(FilterSet):
@@ -11,7 +8,8 @@ class IngredientFilter(FilterSet):
     by writting just some first letters of the word.
     """
     name = filters.CharFilter(
-        field_name='name', lookup_expr='startswith'
+        field_name='name',
+        lookup_expr='startswith'
     )
 
     class Meta:
@@ -21,7 +19,7 @@ class IngredientFilter(FilterSet):
 
 class RecipeFilter(FilterSet):
     """Filter for searching the recipes
-    by tags or being in the list of favorite recipes
+    by tags, by author or being in the list of favorite recipes
     or being in shopping cart.
     """
     tags = filters.ModelMultipleChoiceFilter(

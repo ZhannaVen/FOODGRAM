@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
@@ -8,42 +7,15 @@ from rest_framework.fields import IntegerField, SerializerMethodField
 
 from recipes.models import (FavoriteRecipes, Follow, Ingredient, Recipe,
                             RecipeIngredients, ShoppingList, Tag)
-
-User = get_user_model()
-
-
-class CustomUserCreateSerializer(UserCreateSerializer):
-    '''Serializer for creating a new user (User registration).
-    '''
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'password',
-        )
-        extra_kwargs = {'password': {'write_only': True}}
-
-        def create(self, validated_data):
-            user = User.objects.create(
-                email=validated_data['email'],
-                username=validated_data['username'],
-                first_name=validated_data['first_name'],
-                last_name=validated_data['last_name']
-            )
-            user.set_password(validated_data['password'])
-            user.save()
-            return user
+from users.models import User
 
 
 class CustomUserSerializer(UserSerializer):
-    '''Serializer for getting user profile.
+    """Serializer for creating a new user (User registration).
+    Serializer for getting user profile.
     Get_is_subscribed - shows whether the current user
     follows the one being viewed.
-    '''
+    """
     is_subscribed = SerializerMethodField(read_only=True)
 
     class Meta:
@@ -65,8 +37,8 @@ class CustomUserSerializer(UserSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
-    '''Serializer for displaying a list of tags or just one tag.
-    '''
+    """Serializer for displaying a list of tags or just one tag.
+    """
     class Meta:
         fields = (
             'name',
@@ -77,8 +49,8 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    '''Serializer for displaying a list of ingredients or just one ingredient.
-    '''
+    """Serializer for displaying a list of ingredients or just one ingredient.
+    """
     class Meta:
         fields = (
             'id',
@@ -95,9 +67,9 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientsSerializer(serializers.ModelSerializer):
-    '''Serializer for displaying a list of ingredients and their amount.
+    """Serializer for displaying a list of ingredients and their amount.
     Only needed for RecipeReadSerializer.
-    '''
+    """
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -115,8 +87,8 @@ class RecipeIngredientsSerializer(serializers.ModelSerializer):
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
-    '''Serializer for displaying a list of recipes.
-    '''
+    """Serializer for displaying a list of recipes.
+    """
     tags = TagSerializer(many=True)
     author = CustomUserSerializer()
     ingredients = SerializerMethodField()
@@ -164,9 +136,9 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 
 class IngredientWriteSerializer(serializers.ModelSerializer):
-    '''Serializer for adding an ingredient and its amount to the recipe.
+    """Serializer for adding an ingredient and its amount to the recipe.
     Only needed for RecipeWriteSerializer.
-    '''
+    """
     id = IntegerField(write_only=True)
     amount = serializers.IntegerField()
 
@@ -179,8 +151,8 @@ class IngredientWriteSerializer(serializers.ModelSerializer):
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
-    '''Serializer for creating, editing, deleting a recipe.
-    '''
+    """Serializer for creating, editing, deleting a recipe.
+    """
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True
@@ -272,10 +244,10 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
 
 class BriefRecipeSerializer(serializers.ModelSerializer):
-    '''Serializer for displaying a brief recipe.
+    """Serializer for displaying a brief recipe.
     Onle needed for FavoriteRecipesSerilizer, ShoppingListSerislizer
     and FollowSerializer.
-    '''
+    """
     class Meta:
         fields = (
             'id',
@@ -287,8 +259,8 @@ class BriefRecipeSerializer(serializers.ModelSerializer):
 
 
 class FavoriteRecipesSerializer(serializers.ModelSerializer):
-    '''Serializer for displaying a list of favorite recipes.
-    '''
+    """Serializer for displaying a list of favorite recipes.
+    """
     class Meta:
         fields = ('user', 'recipe')
         model = FavoriteRecipes
@@ -314,8 +286,8 @@ class FavoriteRecipesSerializer(serializers.ModelSerializer):
 
 
 class ShoppingListSerializer(serializers.ModelSerializer):
-    '''Serializer for displaying a list of recipes for shopping.
-    '''
+    """Serializer for displaying a list of recipes for shopping.
+    """
     class Meta:
         model = ShoppingList
         fields = ('user', 'recipe')
@@ -328,8 +300,8 @@ class ShoppingListSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    '''Serializer for displaying a list of subscriptions of the user.
-    '''
+    """Serializer for displaying a list of subscriptions of the user.
+    """
     is_subscribed = SerializerMethodField(read_only=True)
     recipes_count = SerializerMethodField()
     recipes = SerializerMethodField()
