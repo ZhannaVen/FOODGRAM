@@ -2,14 +2,16 @@ from django.contrib.auth import get_user_model
 from django_filters.rest_framework import FilterSet, filters
 
 from recipes.models import Ingredient, Recipe, Tag
+from users.models import User
 
-User = get_user_model()
+
+user = User
 
 
 class IngredientFilter(FilterSet):
-    '''Filter for searching the ingredient
+    """Filter for searching the ingredient
     by writting just some first letters of the word.
-    '''
+    """
     name = filters.CharFilter(
         field_name='name', lookup_expr='startswith'
     )
@@ -20,10 +22,10 @@ class IngredientFilter(FilterSet):
 
 
 class RecipeFilter(FilterSet):
-    '''Filter for searching the recipes
+    """Filter for searching the recipes
     by tags or being in the list of favorite recipes
-    or being in shopping list.
-    '''
+    or being in shopping cart.
+    """
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         lookup_expr='startswith',
@@ -31,8 +33,8 @@ class RecipeFilter(FilterSet):
         queryset=Tag.objects.all(),
     )
     is_favorited = filters.BooleanFilter(method='filter_is_favorited')
-    is_in_shopping_list = filters.BooleanFilter(
-        method='filter_is_in_shopping_list'
+    is_in_shopping_cart = filters.BooleanFilter(
+        method='filter_is_in_shopping_cart'
     )
 
     class Meta:
@@ -45,7 +47,7 @@ class RecipeFilter(FilterSet):
             return queryset.filter(favorites__user=user)
         return queryset
 
-    def filter_is_in_shopping_list(self, queryset, name, value):
+    def filter_is_in_shopping_cart(self, queryset, name, value):
         user = self.request.user
         if value and not user.is_anonymous:
             return queryset.filter(shopping_list__user=user)
