@@ -24,9 +24,10 @@ class Command(BaseCommand):
                 data = json.load(f)
                 for ingredient in data:
                     try:
-                        Ingredient.objects.create(name=ingredient["name"],
-                                                  measurement_unit=ingredient[
-                                                      "measurement_unit"])
+                        Ingredient.objects.get_or_create(
+                            name=ingredient['name'],
+                            measurement_unit=ingredient['measurement_unit']
+                        )
                     except IntegrityError:
                         print(f'Ingredient {ingredient["name"]} '
                               f'{ingredient["measurement_unit"]} '

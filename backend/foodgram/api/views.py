@@ -52,14 +52,12 @@ class CustomUserViewSet(UserViewSet):
             Follow.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        if request.method == 'DELETE':
-            subscription = get_object_or_404(
-                Follow,
-                user=user,
-                author=author
-            )
-            subscription.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+        get_object_or_404(
+            Follow,
+            user=user,
+            author=author
+        ).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,

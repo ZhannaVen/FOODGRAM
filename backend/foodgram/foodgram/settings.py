@@ -6,7 +6,10 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = os.getenv('SECRET_KEY', default='4%71r7)@l^_*yrdkaiax)304l9rs*uj*(+i#7$)c=zjsbsu(=a')
+SECRET_KEY = os.getenv(
+    'SECRET_KEY',
+    default='4%71r7)@l^_*yrdkaiax)304l9rs*uj*(+i#7$)c=zjsbsu(=a'
+)
 
 DEBUG = os.getenv('DEBUG', default=True)
 
@@ -58,7 +61,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-if DEBUG:
+TEST_DB = True
+
+if TEST_DB:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -66,10 +71,13 @@ if DEBUG:
         }
     }
 
-if not DEBUG:
+if not TEST_DB:
     DATABASES = {
         'default': {
-            'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
+            'ENGINE': os.getenv(
+                'DB_ENGINE',
+                default='django.db.backends.postgresql'
+            ),
             'NAME': os.getenv('DB_NAME', default='postgres'),
             'USER': os.getenv('POSTGRES_USER', default='postgres'),
             'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
@@ -93,9 +101,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-RU'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -123,16 +131,12 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
-    'DEFAULT_PAGINATION_CLASS':
-        'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 6,
 }
 
 DJOSER = {
     "SERIALIZERS": {
-        "user_create": "api.serializers.CustomUserCreateSerializer",
-        "user": "api.serializers.CustomUserSerializer",
-        "current_user": "api.serializers.CustomUserSerializer",
+        "user": 'api.serializers.CustomUserSerializer',
+        "current_user": 'api.serializers.CustomUserSerializer',
     },
     'PERMISSIONS': {
         'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
