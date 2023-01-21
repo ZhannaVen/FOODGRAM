@@ -302,6 +302,19 @@ class ShoppingListSerializer(serializers.ModelSerializer):
         model = ShoppingList
         fields = ('user', 'recipe')
 
+    def validate(self, data):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        recipe = data['recipe']
+        if ShoppingList.objects.filter(
+            user=request.user, recipe=recipe
+        ).exists():
+            raise serializers.ValidationError({
+                'status': 'Вы уже добавили этот рецепт в шопинг лист!'
+            })
+        return data
+
     def to_representation(self, instance):
         request = self.context.get('request')
         context = {'request': request}
@@ -349,13 +362,16 @@ class FollowSerializer(serializers.ModelSerializer):
         return data
 
     def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
-        return Follow.objects.filter(user=user, author=obj).exists()
+        request = self.context.get('request')
+        return (
+            request.user.is_authenticated
+            and request.user.following.filter(recipe=obj).exists()
+        )
 
     def get_recipes(self, obj):
         request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
         limit = request.GET.get('recipes_limit')
         recipes = obj.recipes.all()
         if limit:

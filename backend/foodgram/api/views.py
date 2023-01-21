@@ -11,10 +11,6 @@ from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from recipes.models import (FavoriteRecipes, Follow, Ingredient, Recipe,
-                            RecipeIngredients, ShoppingList, Tag)
-from users.models import User
-
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
@@ -22,6 +18,9 @@ from .serializers import (BriefRecipeSerializer, CustomUserSerializer,
                           FollowSerializer, IngredientSerializer,
                           RecipeReadSerializer, RecipeWriteSerializer,
                           TagSerializer)
+from recipes.models import (FavoriteRecipes, Follow, Ingredient, Recipe,
+                            RecipeIngredients, ShoppingList, Tag)
+from users.models import User
 
 
 class CustomUserViewSet(UserViewSet):
@@ -32,6 +31,7 @@ class CustomUserViewSet(UserViewSet):
     '''
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
+    pagination_class = CustomPageNumberPagination
 
     @action(
         detail=True,
@@ -40,8 +40,7 @@ class CustomUserViewSet(UserViewSet):
     )
     def subscribe(self, request, **kwargs):
         user = request.user
-        author_id = self.kwargs.get('id')
-        author = get_object_or_404(User, id=author_id)
+        author = get_object_or_404(User, id=self.kwargs.get('id'))
 
         if request.method == 'POST':
             serializer = FollowSerializer(
