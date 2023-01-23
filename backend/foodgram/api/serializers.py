@@ -94,7 +94,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     ingredients = SerializerMethodField()
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
-    image = Base64ImageField()
 
     class Meta:
         fields = (
@@ -217,12 +216,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return data
 
     def create_ingredients(self, ingredients, recipe):
-        for ingredient in ingredients:
-            RecipeIngredients.objects.create(
+        RecipeIngredients.objects.bulk_create(
+            [RecipeIngredients(
                 recipe=recipe,
                 ingredient=ingredient.get('id'),
-                amount=ingredient.get('amount'),
-            )
+                amount=ingredient.get('amount')
+            ) for ingredient in ingredients]
+        )
 
     def create(self, validated_data):
         author = self.context.get('request').user
@@ -355,7 +355,7 @@ class FollowSerializer(serializers.ModelSerializer):
             )
         if user == author:
             raise ValidationError(
-                detail='You can not subscribe youself',
+                detail='Вы не можете подписаться на самого себя!',
                 code=status.HTTP_400_BAD_REQUEST
             )
         return data
