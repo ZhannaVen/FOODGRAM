@@ -167,50 +167,43 @@ class RecipeTags (models.Model):
         verbose_name = 'Теги рецепта'
 
 
-class FavoriteRecipes (models.Model):
+class CommonModel(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='favorites',
         verbose_name='Рецепт'
     )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         null=True,
-        related_name='favorites',
         verbose_name='Пользователь'
     )
+
+    class Meta:
+        abstract = True
+
+
+class FavoriteRecipes (CommonModel):
 
     def __str__(self):
         return f'Любимые рецепты пользоваетля: {self.user}'
 
     class Meta:
         ordering = ('-id',)
+        default_related_name = 'favorites'
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
 
 
-class ShoppingList (models.Model):
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        related_name='shopping_list',
-        verbose_name='Рецепт'
-    )
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        null=True,
-        related_name='shopping_list',
-        verbose_name='Пользователь'
-    )
+class ShoppingList (CommonModel):
 
     def __str__(self):
         return f'Шопинг лист для: {self.user}'
 
     class Meta:
         ordering = ('-id',)
+        default_related_name = 'shopping_list'
         verbose_name = 'Шопинг лист'
 
 

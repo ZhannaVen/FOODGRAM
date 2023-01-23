@@ -9,7 +9,7 @@ class IngredientFilter(FilterSet):
     """
     name = filters.CharFilter(
         field_name='name',
-        lookup_expr='startswith'
+        lookup_expr='istartswith'
     )
 
     class Meta:
@@ -23,7 +23,7 @@ class TagFilter(FilterSet):
     """
     name = filters.CharFilter(
         field_name='name',
-        lookup_expr='startswith'
+        lookup_expr='istartswith'
     )
 
     class Meta:
@@ -38,7 +38,7 @@ class RecipeFilter(FilterSet):
     """
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
-        lookup_expr='startswith',
+        lookup_expr='istartswith',
         to_field_name='slug',
         queryset=Tag.objects.all(),
     )
