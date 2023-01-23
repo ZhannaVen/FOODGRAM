@@ -113,8 +113,6 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 
-STRING_LEN: int = 30
-
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -150,3 +148,14 @@ AUTH_USER_MODEL = 'users.User'
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
     EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+
+
+STRING_LEN: int = 30
+
+STRING_LEN_FIELD_1: int = 150
+
+STRING_LEN_FIELD_2: int = 254
+
+STRING_LEN_FIELD_3: int = 200
+
+STRING_LEN_FIELD_4: int = 7
