@@ -56,7 +56,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ('name', 'author', 'pub_date', 'tags')
     inlines = (RecipeIngredientsAdmin, RecipeTagsAdmin)
     empty_value_display = '-empty-'
-    
+
     def in_favorites(self, obj):
         """The function counts total number
         of added recipes to favorites.
@@ -72,7 +72,7 @@ class RecipeAdmin(admin.ModelAdmin):
             for item in obj.recipes.values(
                 'ingredient__name',
                 'amount', 'ingredient__measurement_unit')])
-    
+
     def all_tags(self, obj):
         """The function displays all tags in the recipe.
         """

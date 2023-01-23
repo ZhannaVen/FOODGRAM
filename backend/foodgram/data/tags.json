@@ -1,0 +1,9 @@
+[{"name": "завтрак", "color": "#afeeee", "slug": "breakfast"},
+{"name": "обед", "color": "#14d514", "slug": "lunch"},
+{"name": "ужин", "color": "#ff8040", "slug": "dinner"},
+{"name": "десерт", "color": "#fcacbf", "slug": "dessert"},
+{"name": "легко", "color": "#e0d09d", "slug": "easy"},
+{"name": "праздничное", "color": "#73a1b6", "slug": "holiday"},
+{"name": "быстро", "color": "#efe7ce", "slug": "quick"},
+{"name": "к чаю", "color": "#55009e", "slug": "for_tea"},
+{"name": "сложно", "color": "#7d1038", "slug": "difficult"}]
