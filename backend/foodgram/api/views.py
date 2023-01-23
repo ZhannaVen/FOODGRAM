@@ -11,7 +11,7 @@ from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from .filters import IngredientFilter, RecipeFilter
+from .filters import IngredientFilter, RecipeFilter, TagFilter
 from .pagination import CustomPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (BriefRecipeSerializer, CustomUserSerializer,
@@ -80,6 +80,8 @@ class TagViewSet(ReadOnlyModelViewSet):
     '''
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TagFilter
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):

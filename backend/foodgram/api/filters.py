@@ -17,6 +17,20 @@ class IngredientFilter(FilterSet):
         fields = []
 
 
+class TagFilter(FilterSet):
+    """Filter for searching the tag
+    by writting just some first letters of the word.
+    """
+    name = filters.CharFilter(
+        field_name='name',
+        lookup_expr='startswith'
+    )
+
+    class Meta:
+        model = Tag
+        fields = []
+
+
 class RecipeFilter(FilterSet):
     """Filter for searching the recipes
     by tags, by author or being in the list of favorite recipes
