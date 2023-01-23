@@ -144,6 +144,29 @@ class RecipeIngredients (models.Model):
         verbose_name = 'Количество каждого ингредиента'
 
 
+class RecipeTags (models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='recipes_tags',
+        verbose_name='Рецепт'
+    )
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        related_name='recipes_tags',
+        verbose_name='Теги рецепта'
+    )
+
+    class Meta:
+        ordering = ('tag',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'tag'],
+                name='recipe_tag_unique_together')]
+        verbose_name = 'Теги рецепта'
+
+
 class FavoriteRecipes (models.Model):
     recipe = models.ForeignKey(
         Recipe,

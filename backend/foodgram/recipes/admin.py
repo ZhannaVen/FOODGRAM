@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import (FavoriteRecipes, Follow, Ingredient, Recipe,
-                     RecipeIngredients, ShoppingList, Tag)
+                     RecipeIngredients, ShoppingList, Tag, RecipeTags)
 
 
 @admin.register(Tag)
@@ -34,6 +34,11 @@ class RecipeIngredientsAdmin(admin.StackedInline):
     autocomplete_fields = ('ingredient',)
 
 
+class RecipeTagsAdmin(admin.StackedInline):
+    model = RecipeTags
+    autocomplete_fields = ('tag',)
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
@@ -49,7 +54,7 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     search_fields = ('name', 'author', 'pub_date')
     list_filter = ('name', 'author', 'pub_date', 'tags')
-    inlines = (RecipeIngredientsAdmin,)
+    inlines = (RecipeIngredientsAdmin, RecipeTagsAdmin)
     empty_value_display = '-empty-'
     
     def in_favorites(self, obj):
