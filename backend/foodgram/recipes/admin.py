@@ -7,6 +7,7 @@ from .models import (FavoriteRecipes, Follow, Ingredient, Recipe,
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = (
+        'id',
         'name',
         'color',
         'slug',
@@ -28,6 +29,11 @@ class IngredientAdmin(admin.ModelAdmin):
     empty_value_display = '-empty-'
 
 
+class RecipeIngredientsAdmin(admin.StackedInline):
+    model = RecipeIngredients
+    autocomplete_fields = ('ingredient',)
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
@@ -37,22 +43,36 @@ class RecipeAdmin(admin.ModelAdmin):
         'text',
         'cooking_time',
         'pub_date',
-        'in_favorites'
+        'in_favorites',
+        'all_ingredients',
+        'all_tags'
     )
-    search_fields = ('name', 'author', 'pub_date', 'tags')
+    search_fields = ('name', 'author', 'pub_date')
     list_filter = ('name', 'author', 'pub_date', 'tags')
+    inlines = (RecipeIngredientsAdmin,)
     empty_value_display = '-empty-'
     
     def in_favorites(self, obj):
-        '''The function counts total number
+        """The function counts total number
         of added recipes to favorites.
-        '''
+        """
         return obj.favorites.count()
 
-
-class RecipeIngredientsAdmin(admin.StackedInline):
-    model = RecipeIngredients
-    autocomplete_fields = ('ingredient',)
+    def all_ingredients(self, obj):
+        """The function displays all ingredients in the recipe.
+        """
+        return '\n '.join([
+            f'{item["ingredient__name"]} - {item["amount"]}'
+            f' {item["ingredient__measurement_unit"]}.'
+            for item in obj.recipes.values(
+                'ingredient__name',
+                'amount', 'ingredient__measurement_unit')])
+    
+    def all_tags(self, obj):
+        """The function displays all tags in the recipe.
+        """
+        list_ = [_.name for _ in obj.tags.all()]
+        return ', '.join(list_)
 
 
 @admin.register(FavoriteRecipes)
