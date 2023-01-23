@@ -1,5 +1,3 @@
-from api.download import download_txt
-
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -10,13 +8,14 @@ from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
+from api.download import download_txt
 from api.filters import IngredientFilter, RecipeFilter, TagFilter
 from api.pagination import CustomPageNumberPagination
 from api.permissions import IsAuthorOrReadOnly
-from api.serializers import (FavoriteRecipesSerializer, CustomUserSerializer,
+from api.serializers import (CustomUserSerializer, FavoriteRecipesSerializer,
                              FollowSerializer, IngredientSerializer,
                              RecipeReadSerializer, RecipeWriteSerializer,
-                             TagSerializer, ShoppingListSerializer)
+                             ShoppingListSerializer, TagSerializer)
 from recipes.models import (FavoriteRecipes, Follow, Ingredient, Recipe,
                             RecipeIngredients, ShoppingList, Tag)
 from users.models import User
