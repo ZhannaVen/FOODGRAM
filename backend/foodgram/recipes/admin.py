@@ -32,11 +32,14 @@ class IngredientAdmin(admin.ModelAdmin):
 class RecipeIngredientsAdmin(admin.StackedInline):
     model = RecipeIngredients
     autocomplete_fields = ('ingredient',)
+    min_num = 1
+    extra = 3
 
 
 class RecipeTagsAdmin(admin.StackedInline):
     model = RecipeTags
     autocomplete_fields = ('tag',)
+    min_num = 1
 
 
 @admin.register(Recipe)
@@ -76,8 +79,7 @@ class RecipeAdmin(admin.ModelAdmin):
     def all_tags(self, obj):
         """The function displays all tags in the recipe.
         """
-        list_ = [_.name for _ in obj.tags.all()]
-        return ', '.join(list_)
+        return ', '.join([_.name for _ in obj.tags.all()])
 
 
 @admin.register(FavoriteRecipes)

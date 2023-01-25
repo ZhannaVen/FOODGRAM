@@ -2,6 +2,8 @@ from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 
+from rest_framework.exceptions import ValidationError
+
 from users.models import User
 
 
@@ -186,25 +188,25 @@ class CommonModel(models.Model):
 
 class FavoriteRecipes (CommonModel):
 
-    def __str__(self):
-        return f'Любимые рецепты пользоваетля: {self.user}'
-
     class Meta:
         ordering = ('-id',)
         default_related_name = 'favorites'
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
 
+    def __str__(self):
+        return f'Любимые рецепты пользоваетля: {self.user}'
+
 
 class ShoppingList (CommonModel):
-
-    def __str__(self):
-        return f'Шопинг лист для: {self.user}'
 
     class Meta:
         ordering = ('-id',)
         default_related_name = 'shopping_list'
         verbose_name = 'Шопинг лист'
+
+    def __str__(self):
+        return f'Шопинг лист для: {self.user}'
 
 
 class Follow(models.Model):

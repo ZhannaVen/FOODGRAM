@@ -61,7 +61,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-TEST_DB = True
+TEST_DB = os.getenv('TEST_DB', default=True)
 
 if TEST_DB:
     DATABASES = {
@@ -132,9 +132,9 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
-    "SERIALIZERS": {
-        "user": 'api.serializers.CustomUserSerializer',
-        "current_user": 'api.serializers.CustomUserSerializer',
+    'SERIALIZERS': {
+        'user': 'api.serializers.CustomUserSerializer',
+        'current_user': 'api.serializers.CustomUserSerializer',
     },
     'PERMISSIONS': {
         'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],

@@ -364,7 +364,7 @@ class FollowSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         return (
             request.user.is_authenticated
-            and request.user.following.filter(recipe=obj).exists()
+            and request.user.following.filter(author=obj).exists()
         )
 
     def get_recipes(self, obj):
