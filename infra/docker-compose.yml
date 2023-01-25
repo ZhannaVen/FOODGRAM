@@ -1,14 +1,14 @@
 version: '3.3'
 services:
 
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+  db:
+    image: postgres:13.0-alpine
     volumes:
-      - ../frontend/:/app/result_build/
-  
-  backend: 
+      - postgres_db:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+
+  backend:
     image: zhannaven/foodgram:latest
     restart: always
     volumes:
@@ -17,8 +17,13 @@ services:
     depends_on:
       - db
     env_file:
-      - ./.env
-  
+      - ./.env  
+
+  frontend:
+    image: zhannaven/foodgram-frontend:latest
+    volumes:
+      - ../frontend/:/app/result_build/
+
   nginx:
     image: nginx:1.19.3
     ports:
@@ -31,13 +36,7 @@ services:
       - media_value:/var/html/media/
     depends_on:
       - backend
-  
-  db:
-    image: postgres:13.0-alpine
-    volumes:
-      - postgres_db:/var/lib/postgresql/data/
-    env_file:
-      - ./.env
+
 
 volumes:
   postgres_db:
