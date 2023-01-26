@@ -113,4 +113,4 @@ docker-compose exec backend python3 manage.py load_tags
 ## Автор
 
 - [Zhanna - Python-разработчик](https://github.com/ZhannaVen)
-- [Яндекс.Практикум - Фронтенд для сервиса Foodgram
+- [Яндекс.Практикум] - Фронтенд для сервиса Foodgram
