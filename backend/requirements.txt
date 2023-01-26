@@ -16,3 +16,4 @@ python-dotenv
 Pillow==8.3.1
 drf-extra-fields
 isort
+djoser==2.0.1
