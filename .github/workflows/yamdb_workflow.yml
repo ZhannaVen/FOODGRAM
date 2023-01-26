@@ -90,7 +90,7 @@ jobs:
             
           sudo docker-compose stop
           sudo docker system prune
-            
+          
           rm .env
           touch .env 
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
