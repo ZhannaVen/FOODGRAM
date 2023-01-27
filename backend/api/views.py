@@ -36,7 +36,8 @@ class CustomUserViewSet(UserViewSet):
         detail=True,
         methods=['post', 'delete'],
         url_path='subscribe',
-        permission_classes=[IsAuthenticated]
+        permission_classes=[IsAuthenticated],
+        serializer_class=FollowSerializer
     )
     def subscribe(self, request, **kwargs):
         user = request.user

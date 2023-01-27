@@ -340,6 +340,10 @@ class FollowSerializer(serializers.ModelSerializer):
             'recipes_count',
         )
         model = User
+        read_only_fields = (
+            'email',
+            'username'
+        )
 
     def validate(self, data):
         author = self.instance
