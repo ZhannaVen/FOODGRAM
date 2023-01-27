@@ -35,6 +35,7 @@ class CustomUserViewSet(UserViewSet):
     @action(
         detail=True,
         methods=['post', 'delete'],
+        url_path='subscribe',
         permission_classes=[IsAuthenticated]
     )
     def subscribe(self, request, **kwargs):
