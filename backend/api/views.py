@@ -34,25 +34,29 @@ class CustomUserViewSet(UserViewSet):
 
     @action(
         detail=True,
-        methods=['post'],
+        methods=['post', 'delete'],
+        url_path='subscribe',
         permission_classes=[IsAuthenticated]
     )
-    def subscribe(self, request, id=None):
+    def subscribe(self, request, **kwargs):
         user = request.user
-        author = get_object_or_404(User, id=id)
-        Follow.objects.create(user=user, author=author)
-        queryset = Follow.objects.get(user=request.user, author=author)
-        serializer = FollowSerializer(
-            queryset,
-            context={'request': request}
-        )
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        author = get_object_or_404(User, id=self.kwargs.get('id'))
 
-    @subscribe.mapping.delete
-    def delete_subscribe(self, request, id=None):
-        user = request.user
-        author = get_object_or_404(User, id=id)
-        Follow.objects.get(user=user, author=author).delete()
+        if request.method == 'POST':
+            serializer = FollowSerializer(
+                author,
+                data=request.data,
+                context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
+            Follow.objects.create(user=user, author=author)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        get_object_or_404(
+            Follow,
+            user=user,
+            author=author
+        ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def subscriptions(self, request):
