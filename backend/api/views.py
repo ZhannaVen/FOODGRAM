@@ -37,9 +37,9 @@ class CustomUserViewSet(UserViewSet):
         methods=['post', 'delete'],
         permission_classes=[IsAuthenticated]
     )
-    def subscribe(self, request, **kwargs):
+    def subscribe(self, request, pk):
         user = request.user
-        author = get_object_or_404(User, id=self.kwargs.get('id'))
+        author = get_object_or_404(User, pk=pk)
 
         if request.method == 'POST':
             serializer = FollowSerializer(
@@ -50,7 +50,7 @@ class CustomUserViewSet(UserViewSet):
             serializer.is_valid(raise_exception=True)
             Follow.objects.create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
+        
         get_object_or_404(
             Follow,
             user=user,
