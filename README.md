@@ -1,11 +1,11 @@
-# FOODGRAM - твой продуктовый помощник
+# FOODGRAM - your product assistant
 [![Django-app workflow](https://github.com/zhannaven/FOODGRAM/actions/workflows/yamdb_workflow.yml/badge.svg?branch=master)](https://github.com/zhannaven/FOODGRAM/actions/workflows/yamdb_workflow.yml)
-### Описание проекта
-FOODGRAM - это онлайн-сервис и API для него. На этом сервисе пользователи смогут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать сводный список продуктов, необходимых для приготовления одного или нескольких выбранных блюд.
+### Description
+FOODGRAM - is an online service and an API for it. Using this service, users can publish recipes, subscribe to publications of other users, add recipes they liked to the "Favorites", and before going to the store, download a list of needed products.
 
-Всю документацию по API можно найти здесь [/redoc]
+All API documentation can be found here [/redoc]
 
-### Технологии:
+### Used frameworks and libraries:
 - Python 3.7
 - Django 2.2.16
 - DRF 3.12.4
@@ -17,38 +17,38 @@ FOODGRAM - это онлайн-сервис и API для него. На это�
 - DockerHub
 - GitHub Actions (CI/CD)
 
-### Пример наполнения файла .env
+### Template description of .env
  - DB_ENGINE=django.db.backends.postgresql
  - DB_NAME=postgres
  - POSTGRES_USER=postgres
  - POSTGRES_PASSWORD=postgres
  - DB_HOST=db
  - DB_PORT=5432
- - SECRET_KEY=<секретный ключ проекта Django>
+ - SECRET_KEY=<Django project secret key>
 
-### Запуск проекта (в Unix) 
-- Склонировать репозиторий на локальную машину:
+### How to start a project (Unix) 
+- Clone repository:
 ```bash
 git clone git@github.com:ZhannaVen/FOODGRAM.git
 ```
-- Выполнить вход на удаленный сервер:
-- Установить docker на сервер:
+- Log in to a remote server
+- Install docker on the server:
 ```bash
 sudo apt install docker.io 
 ```
-- Установить docker-compose на сервер:
+- Install docker-compose on the server:
 ```bash
 curl -SL https://github.com/docker/compose/releases/download/v2.14.2/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 ```
-- Отредактировать файл nginx/default.conf, изменив IP адрес сервера
-- Скопировать файлы docker-compose.yml и default.conf из проекта на сервер:
+- Edit file locally nginx/default.conf, be sure to enter the server's IP address in the server_name line
+- Copy the docker-compose.yml and default.conf from the infra directory to the server:
 ```bash
 scp docker-compose.yml <username>@<host>:/home/<username>/docker-compose.yml
 scp default.conf <username>@<host>:/home/<username>/nginx.conf
 ```
-- создать файл .env в соответствии с примером выше. Необходимо изменить значения POSTGRES_USER и POSTGRES_PASSWORD
-- Для работы с Workflow добавьте переменные окружения в Secrets GitHub:
+- Create .env according to the template above. Be sure to change the POSTGRES_USER and POSTGRES_PASSWORD values
+- To work with Workflow, add environment variables to Secrets GitHub:
     ```
     DB_ENGINE=<django.db.backends.postgresql>
     DB_NAME=<postgres database name>
@@ -70,47 +70,47 @@ scp default.conf <username>@<host>:/home/<username>/nginx.conf
     TELEGRAM_TO=<ID of the chat where the message will be sent>
     TELEGRAM_TOKEN=<тyour bot token>
     ```
-    4 этапа Workflow:
-     - Проверка кода в соответствии PEP8;
-     - сборка образов backend/frontend и отправка на Docker Hub;
-     - Автоматический деплой на удаленный сервис;
-     - Отправка сообщения в telegram чат.
+    Four steps of Workflow:
+     - Checking code for PEP8 compliance;
+     - Building and delivering a docker image for the web container on Docker Hub;
+     - Automatic deployment to a remote server;
+     - Sending a notification to a telegram chat.
 
-- Запустите docker-compose:
+- build and run containers on the server:
 ```bash
 docker-compose up -d --build
 ```
-- Далее необходимо настроить базу данных:
-    * Провести миграции:
+- After a successful build, perform the following steps (only for the first deployment):
+    * Run migrations inside containers:
     ```bash
     docker-compose exec web python manage.py migrate
     ```
-    * Подгрузить статику:
+    * Collect static:
     ```bash
     docker-compose exec web python manage.py collectstatic --no-input
     ```  
-    * Создать суперпользователя:
+    * Create a Django superuser, after prompting from the terminal, enter the username and password for the superuser:
     ```bash
     docker-compose exec web python manage.py createsuperuser
     ```
 
-### Наполнение базы данных
-- Загрузить ингредиенты:
+### Filling the database
+- Fill the database with ingredients:
 ```bash
 docker-compose exec backend python3 manage.py load_ingredients
 ```
-- Загрузить теги:
+- Fill the database with tegs:
 ```bash
 docker-compose exec backend python3 manage.py load_tags
 ```
 
-### Роли пользователей
+### User roles
 
-- Аноним - может просматривать рецепты и страницы пользователей, фильтровать рецепты по тегам.
-- Авторизованный пользователь (user) - модет создавать/редактировать/удалять собственные рецепты; просматривать рецепты на главной; просматривать страницы пользователей; просматривать отдельные страницы рецептов; фильтровать рецепты по тегам; работать с персональным списком избранного: добавлять в него рецепты или удалять их, просматривать свою страницу избранных рецептов; работать с персональным списком покупок: добавлять/удалять любые рецепты, выгружать файл со количеством необходимых ингридиентов для рецептов из списка покупок; подписываться на публикации авторов рецептов и отменять подписку, просматривать свою страницу подписок.
-- Django суперюзер - может изменять пароль любого пользователя, создавать/блокировать/удалять аккаунты пользователей, редактировать/удалять любые рецепты;  добавлять/удалять/редактировать ингредиенты; добавлять/удалять/редактировать теги.
+- Anonymous - can view recipes and user pages, filter recipes by tags.
+- Authenticated user (user) - can, like Anonymous, read everything, in addition, can publish/edit/delete own recipes; add recipes to Favorites and Shopping Cart; download ingredients for shopping; follow other users.
+- Django Superuser - has administrator rights (admin).
 
-## Автор
+## Author
 
-- [Zhanna - Python-разработчик](https://github.com/ZhannaVen)
-- [Яндекс.Практикум] - Фронтенд для сервиса Foodgram
+- [Zhanna - Python-Developer](https://github.com/ZhannaVen)
+- [Яндекс.Практикум](https://github.com/yandex-praktikum) - Фронтенд для сервиса Foodgram
